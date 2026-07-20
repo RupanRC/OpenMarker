@@ -7,6 +7,7 @@ import {
 } from '../store/annotations';
 import { getScreenshot, deleteScreenshot } from '../store/db';
 import { exportLlmBundle } from './export-llm';
+import { exportHtmlReport } from './export-html';
 
 async function render(): Promise<void> {
   const all = await getAllAnnotations();
@@ -32,6 +33,9 @@ async function render(): Promise<void> {
   const llmBtn = document.getElementById('bm-export-llm') as HTMLButtonElement;
   llmBtn.disabled = false;
   llmBtn.onclick = () => exportLlmBundle();
+  const htmlBtn = document.getElementById('bm-export-html') as HTMLButtonElement;
+  htmlBtn.disabled = false;
+  htmlBtn.onclick = () => exportHtmlReport();
 }
 
 function renderCard(a: Annotation, i: number, items: Annotation[], all: Annotation[]): HTMLElement {

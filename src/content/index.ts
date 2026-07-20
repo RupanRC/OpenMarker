@@ -3,6 +3,7 @@ import { openCommentPopover } from './popover';
 import { captureElement } from './capture';
 import { requestConsoleSnapshot } from './console-bridge';
 import { startDrawSession } from './draw';
+import { reattachPins } from './reattach';
 
 const host = document.createElement('div');
 host.id = 'browser-markup-host';
@@ -63,3 +64,9 @@ shadow.getElementById('bm-pin')!.addEventListener('click', startPinFlow);
 shadow.getElementById('bm-draw')!.addEventListener('click', async () => {
   pendingShapes = await startDrawSession(shadow);
 });
+
+document.addEventListener('keydown', (e) => {
+  if (e.altKey && e.key.toLowerCase() === 'p') { e.preventDefault(); startPinFlow(); }
+}, true);
+
+reattachPins(shadow);

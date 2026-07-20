@@ -1,11 +1,33 @@
 import { cropBox } from '../shared/coords';
 import { saveScreenshot } from '../store/db';
-import { saveAnnotation } from '../store/annotations';
+import { getAllAnnotations, saveAnnotation } from '../store/annotations';
 import type { Annotation, Shape } from '../shared/types';
 
 interface CaptureRequest { type: 'bm-capture'; annotation: Annotation; }
+interface ListForUrlRequest { type: 'bm-list-for-url'; url: string; }
+interface FlagMovedRequest { type: 'bm-flag-moved'; id: string; }
+type BmRequest = CaptureRequest | ListForUrlRequest | FlagMovedRequest;
 
-chrome.runtime.onMessage.addListener((msg: CaptureRequest, _sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((msg: BmRequest, _sender, sendResponse) => {
+  if (msg?.type === 'bm-list-for-url') {
+    getAllAnnotations()
+      .then((all) => sendResponse({ annotations: all.filter((x) => x.url === msg.url) }))
+      .catch(() => sendResponse({ annotations: [] }));
+    return true;
+  }
+  if (msg?.type === 'bm-flag-moved') {
+    getAllAnnotations()
+      .then(async (all) => {
+        const a = all.find((x) => x.id === msg.id);
+        if (a && !a.commentEdited.includes('[element moved]')) {
+          a.commentEdited = `${a.commentEdited} [element moved]`.trim();
+          a.updatedAt = new Date().toISOString();
+          await saveAnnotation(a);
+        }
+      })
+      .then(() => sendResponse({ ok: true }));
+    return true;
+  }
   if (msg?.type !== 'bm-capture') return false;
   handleCapture(msg.annotation)
     .then((screenshot) => sendResponse({ ok: true, screenshot }))
