@@ -6,6 +6,7 @@ import {
   reorderAnnotations,
 } from '../store/annotations';
 import { getScreenshot, deleteScreenshot } from '../store/db';
+import { exportLlmBundle } from './export-llm';
 
 async function render(): Promise<void> {
   const all = await getAllAnnotations();
@@ -28,6 +29,9 @@ async function render(): Promise<void> {
     app.appendChild(h);
     items.forEach((a, i) => app.appendChild(renderCard(a, i, items, all)));
   }
+  const llmBtn = document.getElementById('bm-export-llm') as HTMLButtonElement;
+  llmBtn.disabled = false;
+  llmBtn.onclick = () => exportLlmBundle();
 }
 
 function renderCard(a: Annotation, i: number, items: Annotation[], all: Annotation[]): HTMLElement {
