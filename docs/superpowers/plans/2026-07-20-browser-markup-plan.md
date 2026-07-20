@@ -278,13 +278,13 @@ Expected: `CONTENT_OK` (content script is import-free).
 Run: `npx tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 8: Manual smoke check**
+- [ ] **Step 8: Manual smoke check** — DEFERRED TO USER (no browser automation in the executor environment)
 
 `chrome://extensions` → Developer mode → Load unpacked → select `dist/` →
 open any https page → toolbar appears top-right; clicking the extension
 action icon does nothing yet (no error in console).
 
-- [ ] **Step 9: Commit and push**
+- [x] **Step 9: Commit and push**
 
 ```bash
 git add -A
