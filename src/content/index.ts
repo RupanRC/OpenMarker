@@ -2,6 +2,7 @@ import { startPicker } from './picker';
 import { openCommentPopover } from './popover';
 import { captureElement } from './capture';
 import { requestConsoleSnapshot } from './console-bridge';
+import { startDrawSession } from './draw';
 
 const host = document.createElement('div');
 host.id = 'browser-markup-host';
@@ -19,11 +20,13 @@ shadow.innerHTML = `
   <div class="bm-toolbar">
     <span>Browser-Markup</span>
     <button id="bm-pin" type="button">Pin</button>
+    <button id="bm-draw" type="button">Draw</button>
   </div>`;
 document.documentElement.appendChild(host);
 
 let pinCount = 0;
 let picking: (() => void) | null = null;
+let pendingShapes: import('../shared/types').Shape[] = [];
 
 function dropMarker(n: number, pos: { x: number; y: number }): void {
   const m = document.createElement('div');
@@ -46,6 +49,8 @@ function startPinFlow(): void {
       async (comment) => {
         const consoleErrors = await requestConsoleSnapshot();
         const annotation = captureElement(el, comment, consoleErrors as any, ++pinCount);
+        annotation.shapes = pendingShapes;
+        pendingShapes = [];
         await chrome.runtime.sendMessage({ type: 'bm-capture', annotation });
         dropMarker(annotation.n, pos);
       },
@@ -55,3 +60,6 @@ function startPinFlow(): void {
 }
 
 shadow.getElementById('bm-pin')!.addEventListener('click', startPinFlow);
+shadow.getElementById('bm-draw')!.addEventListener('click', async () => {
+  pendingShapes = await startDrawSession(shadow);
+});
