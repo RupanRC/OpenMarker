@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Browser-Markup",
+  "version": "0.1.0",
+  "description": "Pin comments on live pages, capture context, export LLM-ready bug reports.",
+  "permissions": ["storage", "downloads", "activeTab", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "background": { "service_worker": "background.js", "type": "module" },
+  "content_scripts": [
+    { "matches": ["<all_urls>"], "js": ["content.js"], "run_at": "document_idle" },
+    { "matches": ["<all_urls>"], "js": ["hook.js"], "run_at": "document_start", "world": "MAIN" }
+  ],
+  "action": { "default_title": "Browser-Markup" }
+}
